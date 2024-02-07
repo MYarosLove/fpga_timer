@@ -1,0 +1,139 @@
+module timer_top  #(
+	parameter COUNTER_SIZE	=	32,
+	parameter PRESCALER_BIT	=	32)
+(
+    input   logic clk, 
+    input   logic rst, 
+    input   logic module_en, 
+    input   logic wr,
+    inout   logic timer_in,                         // Внешний сигнал
+
+    input   logic [7:0] CTRL_REG,                    // Регистр управления режимом работы и прерываниям
+    input   logic [7:0] CTRL_IN,                     // Регистр входным сигналом 
+    input   logic [7:0] CTRL_PWM,                    // Регистр управления выходным сигналом (ШИМ)
+    
+    input   logic [PRESCALER_BIT-1:0] DIVISOR_SYNC_VAL,
+    input   logic [PRESCALER_BIT-1:0] DIVISOR_ASYNC_VAL,
+    input   logic [COUNTER_SIZE-1]    CNT_INIT_START_VAL,
+    input   logic [COUNTER_SIZE-1]    CNT_INIT_MIN,
+    input   logic [COUNTER_SIZE-1]    CNT_INIT_MAX,
+    
+    input   logic [COUNTER_SIZE-1]    CNT_MATCH_CH_0,
+    input   logic [COUNTER_SIZE-1]    CNT_MATCH_CH_1,
+
+
+    output  logic [7:0]               STATUS,
+    output  logic [COUNTER_SIZE-1]    CNT_VAL_SYNC
+    output  logic [COUNTER_SIZE-1]    CNT_VAL_ASYNC
+);
+
+    // CTRL  биты
+    localparam CTRL_START_BIT =   0;
+    localparam CTRL_CNT_MODE_BIT= 1;
+    localparam CTRL_RESERVED  =   2;
+    localparam CTRL_CLK_SEL_BIT = 3;
+    localparam CTRL_OVF_INT_BIT = 4;
+    localparam CTRL_MO_INTR_BIT  = 5;
+    localparam CTRL_M1_INTR_BIT  = 6;
+    localparam CTRL_FREE_BIT    = 7;
+
+
+    // CTRL_PWM  биты
+    localparam PWM_MODE_BIT =   0;
+    localparam PWM_INV_BIT  =   1;
+    localparam PWM_OVF_TRG  =   2;
+    localparam PWM_M0_TRG   =   3;
+    localparam PWM_M1_TRG   =   4;
+
+
+    localparam STATUS_OVF_BIT = 0;
+    localparam STATUS_M0F_BIT = 1;
+    localparam STATUS_M1F_BIT = 2;
+
+    // Таймер - счетчик
+	timer_counter #(.COUNTER_SIZE (COUNTER_SIZE))                                            
+	timer_counter(                               
+	 .clk_i				(clk),											    // Тактирование
+	 .en_i				(),							            // Разрешение работы / настройка таймера
+	 .rst_i				(~rst_b),										    // Сброс
+	 .cnt_mode 			( ~CTRL_REG[CTRL_CNT_MODE_BIT] ), *					                // Режим счета 
+	 .free 				(CTRL_REG[CTRL_FREE_BIT]),	* 
+	 .init_cnt			(),
+	 .min 				(CNT_INIT_MIN),	*							        // Максимальное значение
+	 .max 				(CNT_INIT_MAX),	*							        // Минимальное значение
+	 .init 				(CNT_INIT_START_VAL), *
+	 .clock_divisor 	(DIVISOR_SYNC_VAL), *
+	 .sync_cnt_value	(CNT_VAL_SYNC),							            // Значение таймера
+	 .overflow_set		(STATUS[STATUS_OVF_BIT])				                            // Переполнение таймера (флаг)                   
+	);
+
+
+
+	// Прерывание по переполнению - разрешено прерывание и установлен флаг прерывания (аппаратно)
+	assign overflow_int = overflow_int_en && overflow_status_flag;
+    assign trigger = trigger_int | (counter_overflow & overflow_trg_en);
+
+
+	async_block #(.PRESCALER_BIT(PRESCALER_BIT), .COUNTER_SIZE(COUNTER_SIZE)) async_block (
+
+	.clk			(clk),		                                // Системный клок
+	.clk_ext		(timer_in),		                                // Внешний клок (может быть сиситемным)
+	.rst			(~rst_b),				
+	.edge_mode		(CTRL_IN[0]),
+	.clk_pulse		(clk_pulse),
+	.prescaler_val	(DIVISOR_ASYNC_VAL),
+    .ps_counter_val (CNT_VAL_SYNC)
+	);
+
+   
+    /*
+    // Блок ШИМ
+    output_block  #(.NUM_COMP (NUM_COMP), .COUNTER_SIZE(COUNTER_SIZE))    
+	output_block (
+	.clk           (clk),       *                                                // Тактирование
+	.rst           (~rst_b),     *     // Сброс   
+    .en            (),
+    .match_value   ({   CNT_MATCH_CH_1,                                            //
+							CNT_MATCH_CH_0  }),     *                              
+	.counter_value (CNT_VAL_SYNC),                  *  
+    
+	.pwm_mode      (CTRL_PWM[PWM_MODE_BIT]),          *                                      // Режим работы ШИМ
+	.intr_en       ({ CTRL_REG[CTRL_M1_INTR_BIT]
+							CTRL_REG[CTRL_MO_INTR_BIT] }),
+	.trg_en        ({ out_match_1_trg_en,
+							out_match_0_trg_en   }),
+	.flag          ({ cnt_match_1_status_flag,
+							cnt_match_0_status_flag}),
+	
+	.intr          ({ comp_1_match_int,
+							comp_0_match_int   }),
+	.inv           (CTRL_PWM[PWM_INV_BIT]),
+	.en            (enable_operation),
+	// Выходы
+    .trigger       (trigger_int),
+    .timer_out     (timer_out),                                             
+    .match         ({ cnt_match_1_status_flag_set,      
+                            cnt_match_0_status_flag_set}),
+    .intr          ({ comp_1_match_int,     
+                        comp_0_match_int   })
+	);
+
+	*/
+endmodule : timer_top
+
+
+/*
+
+wire  [7:0] ctrl_reg;
+assign ctrl_reg = {
+           force_free,
+           overflow_int_en,                             // Разрешение прерывания по переполнения    
+           out_match_1_int_en,
+           out_match_0_int_en,                          //
+           clock_select,                                // Выбор входного сигнала
+           async_or_sync_mode,
+           count_mode,                                  // Режим счета
+           start
+       };
+
+       */

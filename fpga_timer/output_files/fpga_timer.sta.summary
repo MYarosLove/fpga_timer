@@ -1,0 +1,77 @@
+------------------------------------------------------------
+Timing Analyzer Summary
+------------------------------------------------------------
+
+Type  : Slow 1200mV 85C Model Setup 'MAX10_CLK1_50'
+Slack : -2.677
+TNS   : -58.829
+
+Type  : Slow 1200mV 85C Model Setup 'timer_top:timer_my|timer_counter:timer_counter|clock_divisor_zero:divisor|strobe'
+Slack : -2.615
+TNS   : -78.406
+
+Type  : Slow 1200mV 85C Model Hold 'timer_top:timer_my|timer_counter:timer_counter|clock_divisor_zero:divisor|strobe'
+Slack : 0.428
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Hold 'MAX10_CLK1_50'
+Slack : 0.548
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'MAX10_CLK1_50'
+Slack : -3.000
+TNS   : -43.326
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'timer_top:timer_my|timer_counter:timer_counter|clock_divisor_zero:divisor|strobe'
+Slack : -1.222
+TNS   : -39.104
+
+Type  : Slow 1200mV 0C Model Setup 'timer_top:timer_my|timer_counter:timer_counter|clock_divisor_zero:divisor|strobe'
+Slack : -2.338
+TNS   : -69.913
+
+Type  : Slow 1200mV 0C Model Setup 'MAX10_CLK1_50'
+Slack : -2.330
+TNS   : -50.183
+
+Type  : Slow 1200mV 0C Model Hold 'timer_top:timer_my|timer_counter:timer_counter|clock_divisor_zero:divisor|strobe'
+Slack : 0.390
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Hold 'MAX10_CLK1_50'
+Slack : 0.503
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'MAX10_CLK1_50'
+Slack : -3.000
+TNS   : -43.326
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'timer_top:timer_my|timer_counter:timer_counter|clock_divisor_zero:divisor|strobe'
+Slack : -1.222
+TNS   : -39.104
+
+Type  : Fast 1200mV 0C Model Setup 'MAX10_CLK1_50'
+Slack : -0.795
+TNS   : -12.664
+
+Type  : Fast 1200mV 0C Model Setup 'timer_top:timer_my|timer_counter:timer_counter|clock_divisor_zero:divisor|strobe'
+Slack : -0.696
+TNS   : -19.795
+
+Type  : Fast 1200mV 0C Model Hold 'timer_top:timer_my|timer_counter:timer_counter|clock_divisor_zero:divisor|strobe'
+Slack : 0.195
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Hold 'MAX10_CLK1_50'
+Slack : 0.246
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'MAX10_CLK1_50'
+Slack : -3.000
+TNS   : -41.456
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'timer_top:timer_my|timer_counter:timer_counter|clock_divisor_zero:divisor|strobe'
+Slack : -1.000
+TNS   : -32.000
+
+------------------------------------------------------------

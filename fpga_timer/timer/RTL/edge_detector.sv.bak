@@ -1,0 +1,10 @@
+	// Детектор фронта или среза для внешнего источника тактирования
+	// Сомещенный с синхронизатором
+	always @(posedge clk or posedge rst)
+		if (rst)	clk_ext_past = 1'b0;			// На сбросе забываем прошлое значение сигнала
+		else	clk_ext_past = clk_ext_past << 1	|	clk_ext;		// Сдвигаем в лево на 1 бит, в освободившееся место вставляем сигнал
+  
+assign pos_edge = ( (&(~clk_ext_past[3:2])) & (&clk_ext_past[1:0]) );		// Факт детекции фронта
+assign neg_edge = ( (&(~clk_ext_past[1:0])) & (&clk_ext_past[3:2]) );		// Факт детекции среза
+
+assign in_pulse = edge_mode	?	neg_edge	:	pos_edge;										// входной импульс выбирается в зависимости от режима
